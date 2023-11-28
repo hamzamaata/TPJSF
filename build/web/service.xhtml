@@ -1,0 +1,76 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <body>
+
+        <ui:composition template="./template/template.xhtml">
+
+            <ui:define name="content">
+                <h:form>
+                    <p:panel header="Gestion des services">
+                        <p:panelGrid columns="2">
+                            <p:outputLabel value="Code : " />
+                            <p:inputText value="#{serviceBean.service.code}" />
+
+                            <p:outputLabel value="Libelle : " />
+                            <p:inputText value="#{serviceBean.service.libelle}" />
+
+                            <p:commandButton value="Envoyer" actionListener="#{serviceBean.onCreateAction}" update=":services collaboratorPanel chiefPanel" />
+                        </p:panelGrid>
+                    </p:panel>
+                </h:form>
+
+                <h:form id="services">
+                    <p:panel header="Liste des services">
+                        <p:dataTable var="s" value="#{serviceBean.services}">
+                            <p:column filterBy="#{s.code}" headerText="Code">
+                                <p:outputLabel value="#{s.code}" />
+                            </p:column>
+
+                            <p:column sortBy="#{s.libelle}" headerText="Libelle">
+                                <p:outputLabel value="#{s.libelle}" />
+                            </p:column>
+                        </p:dataTable>
+                    </p:panel>
+
+                    <!-- Ajout de la fonctionnalité pour afficher les collaborateurs et le graphe -->
+                    <p:panel header="Collaborateurs et Graphe">
+                        <!-- Fonctionnalité pour afficher les collaborateurs d'un service -->
+                        <p:panel header="Collaborateurs du Service">
+                            <p:selectOneMenu value="#{serviceBean.selectedService}" converter="#{serviceConverter}">
+                                <f:selectItems value="#{serviceBean.services}" var="service" itemLabel="#{service.libelle}" itemValue="#{service}" />
+                                <p:ajax update="collaboratorPanel chiefPanel" listener="#{serviceBean.onServiceChange}" />
+                            </p:selectOneMenu>
+
+                            <p:panel id="collaboratorPanel" rendered="#{not empty serviceBean.employesForSelectedService}">
+                                <h:outputText value="Chef de Service : #{serviceBean.serviceChief != null ? serviceBean.serviceChief.nom : 'Aucun'}" />
+                                <p:dataTable var="employe" value="#{serviceBean.employesForSelectedService}">
+                                    <p:column headerText="Nom">
+                                        <h:outputText value="#{employe.nom}" />
+                                    </p:column>
+                                    <p:column headerText="Prénom">
+                                        <h:outputText value="#{employe.prenom}" />
+                                    </p:column>
+                                </p:dataTable>
+                            </p:panel>
+
+                            <p:panel id="noCollaboratorPanel" rendered="#{empty serviceBean.employesForSelectedService}">
+                                <h:outputText value="Sélectionnez un service pour afficher les collaborateurs." />
+                            </p:panel>
+                        </p:panel>
+
+                        <!-- Fonctionnalité pour afficher le graphe -->
+
+                    </p:panel>
+                </h:form>
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>
